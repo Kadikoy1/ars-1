@@ -1,88 +1,98 @@
-# ARS-1 — Agentic Remittance Standard
+# ARS-1 Deployment-Pattern Profiles
 
-The open standard for agent-mediated value transfer.
+ARS-1 v0.2 supports three named deployment-pattern profiles. Each is a published reference profile with declared purpose codes, conditionality predicates, onward-delivery channels, and licensing posture. An operator MAY claim conformance with one or more profiles. The standard does not endorse or name specific commercial operators; conformance is a matter of meeting the published criteria.
 
-**Working Paper v0.2 · May 2026 · CC0 · Draft for public comment**
+## Institutional Disbursement Profile
 
-🌐 [ars-1.org](https://ars-1.org)  
-📄 [Read the specification (PDF)](https://ars-1.org/ARS-1_Specification_v0_2.pdf)  
-🔗 Companions: [AIS-1](https://ais-1.org) · [AAS-1](https://aas-1.org)
+**Use case.** Multilateral institutions (IMF, World Bank, IFC, regional development banks), sovereign agencies, large NGOs disbursing aid programmes, conditional cash transfer programmes, parametric disaster response, scholarship and humanitarian programmes, agentic loan facility drawdown and repayment.
+
+**Originator tier.** AIS-1 Sovereign tier. Multilateral or sovereign-issued sponsor card with government-attested Verifiable Credential.
+
+**Recipient tier.** AIS-1 Verified, typically issued in the field by an authorised onboarding partner (community organisation, central authority designate, or sovereign registry).
+
+**Conditionality.** Heavily used. Oracle-driven for parametric flows (NOAA, regional meteorological agencies, official price feeds). Attestation-driven for conditional programmes (vaccination registries, school enrolment, proof-of-life).
+
+**Purpose codes typically used.**
+- `DTCT` — Direct-to-Citizen Transfer
+- `COND` — Conditional Cash Transfer
+- `PRAM` — Parametric Disaster Response
+- `SCHL` — Scholarship Disbursement (or ISO `STDY`)
+- `HMRT` — Humanitarian Emergency Relief (or ISO `CHAR`)
+- `CLIM` — Climate Resilience Payment
+- `HLTH` — Health-Conditional Transfer
+- `AGLN` / `AGRP` — Agentic Loan Drawdown / Repayment (or ISO `LOAN` / `LOAR`)
+- `DIAS` — Diaspora Coordinated Remittance (where multilateral co-funding present)
+
+**Onward delivery.** Typically mobile money or bank credit in the recipient jurisdiction. Hardship-adjustment policy mandatory for volatile-currency corridors.
+
+**Licensing.** Operators licensed under a jurisdiction-appropriate digital-asset business framework. Sandbox licences acceptable for pilot deployment.
+
+**Compliance posture.** Full Travel Rule compliance with selective disclosure. Three-checkpoint sanctions screening. AML risk-rating by programme type and corridor.
 
 ---
 
-## What is ARS-1?
+## Commercial Remittance Profile
 
-ARS-1 defines a portable, signed, structured message protocol for moving value through AI agents. Where AIS-1 outputs a verifiable identity card and AAS-1 outputs signed action records, **ARS-1 outputs messages** — five classes (Instruction, Transfer, Receipt, Conditionality, Reversal) that together carry a full remittance lifecycle across operators, jurisdictions, and rails.
+**Use case.** Diaspora P2P remittance, employer payroll (including gig and contract workers), marketplace settlement, B2B cross-border supplier payment, treasury-to-treasury transfers with full agentic envelope.
 
-The standard addresses the **Stranded Agent Problem**: agents are now executing value transfer at scale, yet every operator implements its own message format, conditionality grammar, compliance overlay, and addressing scheme. Agents and the value they carry are stranded on whichever rail they were issued on. ARS-1 collapses this with three primitives:
+**Originator tier.** AIS-1 Verified or Basic tier individuals and small-to-medium businesses. Sender app onboards via standard KYC at registration.
 
-1. **Messages** — the structured signed JSON artefacts that one party hands to another.
-2. **AIS-1 DIDs** as the universal address — N² operator-to-operator integration becomes N.
-3. **The ISO 20022 envelope** — ARS-1 rides inside pain.001 / pacs.008 via the standard's `<SplmtryData>` extension. Existing banking infrastructure routes the message without modification.
+**Recipient tier.** AIS-1 Verified, typically issued via a partner network — mobile-money operators, diaspora associations, retail remittance agents, or directly via the operator's onboarding flow.
 
-## Key properties
+**Conditionality.** Light or absent. Most commercial remittance flows are unconditional. Where conditionality is present, it is typically time-based (scheduled payroll, recurring transfers) or attestation-based (delivery confirmation for B2B settlement).
 
-- **Dual-readable** — a Class I instruction is simultaneously a valid pain.001 message and a valid ARS-1 instruction.
-- **Settlement-rail agnostic** — same message works whether settlement is in USDC on Base, EURC on Avalanche, CBDC on a private rail, or MT103 over correspondent banking.
-- **FATF Travel Rule native** — Recommendation 16 data is a first-class field, with selective-disclosure support.
-- **Conditionality built-in** — six predicate types (oracle, attestation, time, balance, manual, composite) with declared fallbacks.
-- **Audit automatic** — every ARS-1 message emits an AAS-1 Class A record at issuance.
-- **Three operator profiles** — institutional disbursement, commercial remittance, state-to-citizen. All share the protocol.
+**Purpose codes typically used.**
+- `RMSP` — Sender-Pays Personal Remittance
+- `RMBP` — Business-Pays Personal Remittance (payroll, gig payout, marketplace)
+- `RMTB` — Treasury / B2B Remittance
+- ISO `FAMI` — Family Maintenance
+- ISO `SALA` — Salary Payment
+- ISO `SUPP` — Supplier Payment
+- ISO `INTC` — Intra-Company Payment
+- ISO `GIFT` — Gift
+- `DIAS` — Diaspora Coordinated Remittance (pooled flows)
 
-## Repository structure
+**Onward delivery.** Mobile money, bank credit, retail cash, or in-network spend. Hardship-adjustment policy recommended for corridors with volatile local currency.
 
-```
-ars-1/
-├── README.md                          ← this file
-├── LICENSE                            ← CC0
-├── docs/
-│   ├── ARS-1_Specification_v0_2.pdf   ← the specification (PDF)
-│   └── ARS-1_Specification_v0_2.md    ← markdown source
-├── schemas/
-│   └── ars-1-class-i.schema.json      ← Class I JSON Schema (normative)
-├── examples/
-│   └── class-i-institutional.json     ← worked example
-├── profiles/
-│   ├── institutional.md
-│   ├── commercial.md
-│   └── state-to-citizen.md
-└── .github/
-    └── ISSUE_TEMPLATE/
-        ├── feedback.md
-        └── proposal.md
-```
+**Licensing.** Operators licensed as money transmitters, payment institutions, or digital-asset businesses in their home jurisdiction. Typically multiple jurisdictional licences for cross-border operation.
 
-## Status
+**Compliance posture.** Travel Rule compliance for cross-border transfers above declared threshold. Tier-appropriate sanctions screening at all three checkpoints. AML risk-rating by sender history and corridor pattern.
 
-ARS-1 v0.2 is a **draft for public comment**. The comment period closes **31 August 2026**. A revised v0.3 will incorporate substantive feedback.
+---
 
-## How to contribute
+## State-to-Citizen Profile
 
-- **File feedback or report an issue** → [open an issue](https://github.com/Kadikoy1/ars-1/issues/new?template=feedback.md)
-- **Propose a change** → [open a proposal](https://github.com/Kadikoy1/ars-1/issues/new?template=proposal.md)
-- **Email** → info@aiagentsservices.net
+**Use case.** Sovereign welfare and public-sector disbursement: social benefits, pensions, tax refunds, public-sector salaries, emergency state aid, universal basic income or universal basic agent allocations.
 
-We are looking for:
+**Originator tier.** AIS-1 Sovereign tier. State entity with government-attested sponsor card.
 
-- Review of the ISO 20022 envelope mechanic from ISO 20022 registration authorities
-- Feedback on the Class I schema and conditionality grammar from operators and audit firms
-- Proposed regulatory profile mappings (DABA, MiCA, GENIUS, FATF)
-- Input on selective-disclosure cryptography
-- Proposed supplementary purpose codes through the ISO 20022 RFP process
-- Real-world deployment use cases and edge cases
-- Support for formal standardisation through ISO TC 68 / SC 8
+**Recipient tier.** AIS-1 Sovereign tier. Recipient agents issued by the national registry of the originating state, bound to the citizen's national ID.
 
-## License
+**Conditionality.** Eligibility predicates verified against government attestations. Common patterns include proof-of-life (pension), enrolment status (education), employment status (unemployment benefit), tax-filing status (refund). Recurring time-based release typical.
 
-This work is released under [CC0 1.0 Universal](LICENSE). No rights reserved. Free to implement without restriction.
+**Purpose codes typically used.**
+- ISO `BENE` — Benefits
+- ISO `PENS` — Pension Payment
+- ISO `TAXS` — Tax Payment (refund direction)
+- ISO `GOVT` — Government Payment
+- ISO `SALA` — Salary Payment (public-sector employees)
+- `UBAA` — Universal Basic Agent Allocation
+- `HLTH` — Health-Conditional Transfer
 
-## Companion standards
+**Onward delivery.** Bank credit to recipient's domestic account, or CBDC-rail in-wallet credit, or domestic mobile money. Hardship adjustment typically not required (domestic currency only).
 
-- **AIS-1** — Agent Identity Standard ([ais-1.org](https://ais-1.org)) — the identity layer ARS-1 binds to.
-- **AAS-1** — Agent Auditability Standard ([aas-1.org](https://aas-1.org)) — the audit layer ARS-1 emits to.
+**Settlement.** May be in CBDC, central-bank-issued stablecoin, or domestic fiat rail. State operators are often the issuer of their own settlement instrument.
 
-Together, the three standards form an open identity-action-audit substrate for the agent economy.
+**Licensing.** State-operated; subject to constitutional and statutory authority rather than commercial licensing.
 
-## Published by
+**Compliance posture.** Domestic flows only — Travel Rule typically not engaged. State-operated sanctions screening. Privacy considerations elevated given state visibility into citizen flows; selective-disclosure recommended.
 
-**BDA AI Agent Services** · Kadikoy Limited, Bermuda (Reg. 202302362)
+---
+
+## Profile Interoperability
+
+The three profiles share the protocol. A recipient agent provisioned under one profile can receive transfers under another. A citizen who first received institutional disbursement aid can subsequently receive commercial diaspora remittance, and welfare from her own government — all to the same AIS-1 recipient agent, all in the same protocol format.
+
+The recipient agent is profile-agnostic. The operator is profile-specific.
+
+This is the network effect ARS-1 unlocks.
