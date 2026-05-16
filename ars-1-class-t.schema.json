@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ars-1.org/schemas/v0.2/ars-1-class-t.schema.json",
+  "title": "ARS-1 Class T — Transfer",
+  "description": "Operator-to-operator settlement message. ISO 20022 pacs.008 analog. Normative for ARS-1 v0.2.",
+  "type": "object",
+  "required": [
+    "ars",
+    "messageId",
+    "class",
+    "instructionRef",
+    "sendingOperatorRef",
+    "receivingOperatorRef",
+    "amount",
+    "settlement",
+    "timestamp",
+    "iso20022Profile",
+    "aas1RecordRef",
+    "signature"
+  ],
+  "properties": {
+    "ars": { "type": "string", "const": "0.2" },
+    "messageId": { "type": "string", "pattern": "^[0-9A-Z]{26}$|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" },
+    "class": { "type": "string", "const": "T" },
+    "instructionRef": {
+      "type": "string",
+      "description": "messageId of the parent Class I instruction."
+    },
+    "sendingOperatorRef": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^did:ais1:",
+      "description": "AIS-1 DID of the sending operator."
+    },
+    "receivingOperatorRef": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^did:ais1:",
+      "description": "AIS-1 DID of the receiving operator."
+    },
+    "amount": {
+      "type": "object",
+      "required": ["currency", "value"],
+      "properties": {
+        "currency": { "type": "string" },
+        "value": { "type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$" },
+        "issuer": { "type": "string", "format": "uri" }
+      }
+    },
+    "settlement": {
+      "type": "object",
+      "required": ["mode", "reference"],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["onchain_public", "onchain_private", "cbdc", "rtgs", "correspondent_banking", "in_network"]
+        },
+        "reference": {
+          "type": "string",
+          "description": "Settlement reference — chain transaction hash, ledger entry ID, RTGS reference, MT103 reference, or operator-internal ID."
+        },
+        "chainId": { "type": "string" },
+        "settledAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "compliance": {
+      "$ref": "https://ars-1.org/schemas/v0.2/ars-1-class-i.schema.json#/properties/compliance",
+      "description": "Receiving-operator sanctions screening. §11.3 checkpoint 2."
+    },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "timestampServiceRef": { "type": "string", "format": "uri" },
+    "iso20022Profile": { "type": "string", "description": "ISO 20022 profile (e.g. 'pacs.008.001.10')." },
+    "aas1RecordRef": { "type": "string", "format": "uri", "pattern": "^aas1:" },
+    "signature": {
+      "type": "object",
+      "required": ["alg", "keyRef", "value"],
+      "properties": {
+        "alg": { "type": "string" },
+        "hashAlg": { "type": "string", "default": "SHA-256" },
+        "canonicalisation": { "type": "string", "default": "JCS" },
+        "keyRef": { "type": "string", "format": "uri" },
+        "value": { "type": "string" }
+      }
+    },
+    "notes": { "type": "string" }
+  },
+  "additionalProperties": false
+}

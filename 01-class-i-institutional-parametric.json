@@ -1,0 +1,74 @@
+{
+  "ars": "0.2",
+  "messageId": "01HZ9D7XKQ4N5MJ2Y8VR3PTBFW",
+  "class": "I",
+  "originatorRef": "did:ais1:sponsor:multilateral-originator-example",
+  "originatorAgentRef": "did:ais1:base:originator-disbursement-agent-001",
+  "beneficiaryRef": "did:ais1:sponsor:beneficiary-svg-example",
+  "recipientAgentRef": "did:ais1:base:recipient-agent-svg-example",
+  "operatorRef": "did:ais1:base:institutional-operator-example",
+  "amount": {
+    "currency": "USDC",
+    "value": "500.00",
+    "issuer": "did:ais1:sponsor:stablecoin-issuer-example"
+  },
+  "purposeCode": "PRAM",
+  "conditionality": {
+    "conditionId": "01HZ9D7Y2K3M4N5P6Q7R8S9T0V",
+    "predicate": {
+      "type": "oracle",
+      "sourceRef": "https://oracles.example.org/caribbean-cyclone-feed",
+      "field": "maxCategoryWithin72h",
+      "operator": "gte",
+      "value": 3,
+      "asOfWindow": "PT72H"
+    },
+    "evidenceRequired": ["attestation", "hash_anchor"],
+    "fallback": {
+      "type": "expiry",
+      "after": "2026-08-15T00:00:00Z",
+      "action": "return_to_originator"
+    },
+    "validity": {
+      "notBefore": "2026-05-16T00:00:00Z",
+      "notAfter": "2026-08-15T00:00:00Z"
+    }
+  },
+  "compliance": {
+    "travelRule": {
+      "envelope": "selective-disclosure",
+      "ref": "https://compliance.example.org/envelope/01HZ9D7Y..."
+    },
+    "sanctionsScreening": {
+      "result": "clear",
+      "listSetRef": "https://compliance.example.org/lists/un-ofac-eu-2026-05",
+      "screenedAt": "2026-05-16T10:14:22Z"
+    },
+    "amlAssessment": {
+      "riskRating": "low",
+      "basis": "verified-tier-sponsor",
+      "assessedAt": "2026-05-16T10:14:22Z"
+    },
+    "capitalFlowTags": ["US->VC", "multilateral-aid", "parametric"]
+  },
+  "onwardDelivery": {
+    "channel": "mobile_money",
+    "providerRef": "did:ais1:sponsor:mobile-money-operator-example",
+    "customerWallet": "+1-784-XXX-XXXX",
+    "currency": "XCD",
+    "hardshipPolicyRef": "https://policies.example.org/hardship/v1"
+  },
+  "valueDate": "2026-05-16",
+  "timestamp": "2026-05-16T10:14:22Z",
+  "timestampServiceRef": "rfc3161:tsa.example.org",
+  "iso20022Profile": "pain.001.001.10",
+  "aas1RecordRef": "aas1:01HZ9D7Z3K4M5N6P7Q8R9S0T1V",
+  "signature": {
+    "alg": "EdDSA",
+    "hashAlg": "SHA-256",
+    "canonicalisation": "JCS",
+    "keyRef": "did:ais1:base:originator-disbursement-agent-001#key-1",
+    "value": "z7kQpNm9..."
+  },
+  "notes": "Institutional-profile parametric cyclone-response disbursement — illustrative reference flow."
+}

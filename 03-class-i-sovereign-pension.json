@@ -1,0 +1,75 @@
+{
+  "ars": "0.2",
+  "messageId": "01HZ9F2RKQ6N7ML4Y0VT5PVDHX",
+  "class": "I",
+  "originatorRef": "did:ais1:sponsor:state-pension-authority-example",
+  "originatorAgentRef": "did:ais1:base:state-disbursement-agent-001",
+  "beneficiaryRef": "did:ais1:sponsor:pensioner-citizen-example",
+  "recipientAgentRef": "did:ais1:base:recipient-agent-sov-example",
+  "operatorRef": "did:ais1:base:sovereign-operator-example",
+  "amount": {
+    "currency": "XYZ",
+    "value": "1200.00",
+    "issuer": "did:ais1:sponsor:central-bank-example"
+  },
+  "purposeCode": "PENS",
+  "conditionality": {
+    "conditionId": "01HZ9F2S3K4M5N6P7Q8R9S0T1V",
+    "predicate": {
+      "type": "composite",
+      "allOf": [
+        {
+          "type": "time",
+          "recurring": {
+            "cron": "0 0 1 * *",
+            "endAt": "2099-12-31T00:00:00Z"
+          }
+        },
+        {
+          "type": "attestation",
+          "attesterRef": "did:ais1:sponsor:state-registry-example",
+          "claimType": "proof-of-life",
+          "claimSchema": "https://policies.example.org/schemas/proof-of-life-v1"
+        }
+      ]
+    },
+    "evidenceRequired": ["attestation"],
+    "fallback": {
+      "type": "predicate_unsatisfied",
+      "action": "escrow_extend"
+    },
+    "validity": {
+      "notBefore": "2026-05-01T00:00:00Z",
+      "notAfter": "2099-12-31T00:00:00Z"
+    }
+  },
+  "compliance": {
+    "sanctionsScreening": {
+      "result": "clear",
+      "listSetRef": "https://compliance.example.org/lists/domestic-2026-05",
+      "screenedAt": "2026-05-16T08:00:00Z"
+    },
+    "amlAssessment": {
+      "riskRating": "low",
+      "basis": "sovereign-tier-recipient; state-disbursement",
+      "assessedAt": "2026-05-16T08:00:00Z"
+    }
+  },
+  "onwardDelivery": {
+    "channel": "bank_credit",
+    "providerRef": "did:ais1:sponsor:domestic-bank-example",
+    "currency": "XYZ"
+  },
+  "valueDate": "2026-06-01",
+  "timestamp": "2026-05-16T08:00:00Z",
+  "iso20022Profile": "pain.001.001.10",
+  "aas1RecordRef": "aas1:01HZ9F2T5K6N7P8Q9R0S1T2U3V",
+  "signature": {
+    "alg": "EdDSA",
+    "hashAlg": "SHA-256",
+    "canonicalisation": "JCS",
+    "keyRef": "did:ais1:base:state-disbursement-agent-001#key-1",
+    "value": "zBxYsTu5..."
+  },
+  "notes": "State-to-citizen profile — recurring monthly pension disbursement conditional on annual proof-of-life attestation."
+}

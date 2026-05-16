@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ars-1.org/schemas/v0.2/ars-1-class-r.schema.json",
+  "title": "ARS-1 Class R — Receipt",
+  "description": "Proof of delivery to the beneficiary, signed by recipient or onward-delivery agent. ISO 20022 camt.054 analog with agent-action semantics. Normative for ARS-1 v0.2.",
+  "type": "object",
+  "required": [
+    "ars",
+    "messageId",
+    "class",
+    "instructionRef",
+    "issuerAgentRef",
+    "deliveryStatus",
+    "timestamp",
+    "iso20022Profile",
+    "aas1RecordRef",
+    "signature"
+  ],
+  "properties": {
+    "ars": { "type": "string", "const": "0.2" },
+    "messageId": { "type": "string", "pattern": "^[0-9A-Z]{26}$|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" },
+    "class": { "type": "string", "const": "R" },
+    "instructionRef": {
+      "type": "string",
+      "description": "messageId of the parent Class I instruction."
+    },
+    "transferRef": {
+      "type": "string",
+      "description": "messageId of the Class T transfer this receipt confirms."
+    },
+    "issuerAgentRef": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^did:ais1:",
+      "description": "AIS-1 DID of the recipient agent or onward-delivery agent issuing the receipt."
+    },
+    "deliveryStatus": {
+      "type": "string",
+      "enum": ["delivered", "partially_delivered", "delivery_failed", "delivery_pending"]
+    },
+    "deliveryDetails": {
+      "type": "object",
+      "properties": {
+        "channel": { "type": "string", "enum": ["bank_credit", "mobile_money", "retail_cash", "in_network_spend", "hold_in_rail"] },
+        "amountDelivered": {
+          "type": "object",
+          "properties": {
+            "currency": { "type": "string" },
+            "value": { "type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$" }
+          }
+        },
+        "fxRateApplied": { "type": "string" },
+        "providerReference": { "type": "string", "description": "Reference from the underlying delivery channel (mobile-money confirmation, bank credit ID, etc.)." },
+        "beneficiaryConfirmation": {
+          "type": "object",
+          "description": "Optional cryptographic confirmation from the beneficiary's controller. Type 'human' evidence under AAS-1.",
+          "properties": {
+            "type": { "type": "string", "const": "human" },
+            "controllerDid": { "type": "string", "format": "uri" },
+            "confirmedAt": { "type": "string", "format": "date-time" }
+          }
+        }
+      }
+    },
+    "compliance": {
+      "$ref": "https://ars-1.org/schemas/v0.2/ars-1-class-i.schema.json#/properties/compliance",
+      "description": "Pre-receipt sanctions screening. §11.3 checkpoint 3."
+    },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "timestampServiceRef": { "type": "string", "format": "uri" },
+    "iso20022Profile": { "type": "string", "description": "ISO 20022 profile (e.g. 'camt.054.001.10')." },
+    "aas1RecordRef": { "type": "string", "format": "uri", "pattern": "^aas1:" },
+    "signature": {
+      "type": "object",
+      "required": ["alg", "keyRef", "value"],
+      "properties": {
+        "alg": { "type": "string" },
+        "hashAlg": { "type": "string", "default": "SHA-256" },
+        "canonicalisation": { "type": "string", "default": "JCS" },
+        "keyRef": { "type": "string", "format": "uri" },
+        "value": { "type": "string" }
+      }
+    },
+    "notes": { "type": "string" }
+  },
+  "additionalProperties": false
+}

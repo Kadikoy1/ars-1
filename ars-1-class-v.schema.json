@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ars-1.org/schemas/v0.2/ars-1-class-v.schema.json",
+  "title": "ARS-1 Class V — Reversal",
+  "description": "Cancellation, return, or recall message. ISO 20022 pacs.004 / camt.056 analog. Normative for ARS-1 v0.2.",
+  "type": "object",
+  "required": [
+    "ars",
+    "messageId",
+    "class",
+    "instructionRef",
+    "issuerAgentRef",
+    "reversalType",
+    "reason",
+    "timestamp",
+    "iso20022Profile",
+    "aas1RecordRef",
+    "signature"
+  ],
+  "properties": {
+    "ars": { "type": "string", "const": "0.2" },
+    "messageId": { "type": "string", "pattern": "^[0-9A-Z]{26}$|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" },
+    "class": { "type": "string", "const": "V" },
+    "instructionRef": {
+      "type": "string",
+      "description": "messageId of the parent Class I instruction being reversed."
+    },
+    "transferRef": {
+      "type": "string",
+      "description": "messageId of the Class T transfer being reversed, if reversal is post-settlement."
+    },
+    "issuerAgentRef": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^did:ais1:",
+      "description": "AIS-1 DID of the agent issuing the reversal."
+    },
+    "reversalType": {
+      "type": "string",
+      "enum": ["cancellation", "return", "recall"],
+      "description": "Cancellation: pre-settlement abort. Return: post-settlement return-of-funds. Recall: request return-of-funds from beneficiary."
+    },
+    "reason": {
+      "type": "object",
+      "required": ["code", "description"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": [
+            "sanctions_match",
+            "fraud_indicator",
+            "oracle_attested_error",
+            "mistaken_send",
+            "beneficiary_repudiation",
+            "originator_cancellation_window",
+            "conditionality_unsatisfied",
+            "compliance_review_failed",
+            "other"
+          ]
+        },
+        "description": { "type": "string" },
+        "evidenceRefs": {
+          "type": "array",
+          "items": { "type": "string", "format": "uri" },
+          "description": "References to AAS-1 evidence supporting the reason for reversal."
+        }
+      }
+    },
+    "amountToReverse": {
+      "type": "object",
+      "required": ["currency", "value"],
+      "properties": {
+        "currency": { "type": "string" },
+        "value": { "type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$" }
+      },
+      "description": "Amount to be reversed. Equal to original amount for full reversal; less for partial."
+    },
+    "settlement": {
+      "type": "object",
+      "description": "Settlement reference for the return-of-funds, if reversal is post-settlement.",
+      "properties": {
+        "mode": { "type": "string" },
+        "reference": { "type": "string" },
+        "settledAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "timestampServiceRef": { "type": "string", "format": "uri" },
+    "iso20022Profile": { "type": "string", "description": "ISO 20022 profile (e.g. 'pacs.004.001.10' or 'camt.056.001.10')." },
+    "aas1RecordRef": { "type": "string", "format": "uri", "pattern": "^aas1:" },
+    "signature": {
+      "type": "object",
+      "required": ["alg", "keyRef", "value"],
+      "properties": {
+        "alg": { "type": "string" },
+        "hashAlg": { "type": "string", "default": "SHA-256" },
+        "canonicalisation": { "type": "string", "default": "JCS" },
+        "keyRef": { "type": "string", "format": "uri" },
+        "value": { "type": "string" }
+      }
+    },
+    "notes": { "type": "string" }
+  },
+  "additionalProperties": false
+}

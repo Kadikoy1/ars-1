@@ -1,0 +1,260 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ars-1.org/schemas/ars-1-class-i.schema.json",
+  "title": "ARS-1 Class I Instruction",
+  "description": "Agentic Remittance Standard v0.2 — Class I (Instruction) message. The originator's initial remittance instruction. Analog to ISO 20022 pain.001.",
+  "type": "object",
+  "required": [
+    "ars",
+    "messageId",
+    "class",
+    "originatorRef",
+    "originatorAgentRef",
+    "beneficiaryRef",
+    "recipientAgentRef",
+    "operatorRef",
+    "amount",
+    "purposeCode",
+    "compliance",
+    "valueDate",
+    "timestamp",
+    "iso20022Profile",
+    "aas1RecordRef",
+    "signature"
+  ],
+  "properties": {
+    "ars": {
+      "type": "string",
+      "const": "0.2",
+      "description": "ARS-1 standard version."
+    },
+    "messageId": {
+      "type": "string",
+      "pattern": "^[0-9A-Z]{26}$|^[0-9a-fA-F-]{36}$",
+      "description": "ULID or UUID, unique within the originator."
+    },
+    "class": {
+      "type": "string",
+      "const": "I",
+      "description": "Message class. 'I' for Instruction."
+    },
+    "originatorRef": {
+      "type": "string",
+      "pattern": "^did:ais1:",
+      "description": "AIS-1 DID of the originating institution or natural person."
+    },
+    "originatorAgentRef": {
+      "type": "string",
+      "pattern": "^did:ais1:",
+      "description": "AIS-1 DID of the originator's disbursement agent."
+    },
+    "beneficiaryRef": {
+      "type": "string",
+      "pattern": "^did:ais1:",
+      "description": "AIS-1 DID of the beneficiary natural or legal person."
+    },
+    "recipientAgentRef": {
+      "type": "string",
+      "pattern": "^did:ais1:",
+      "description": "AIS-1 DID of the recipient agent receiving on the beneficiary's behalf."
+    },
+    "operatorRef": {
+      "type": "string",
+      "pattern": "^did:ais1:",
+      "description": "AIS-1 DID of the routing operator."
+    },
+    "amount": {
+      "type": "object",
+      "required": ["currency", "value"],
+      "properties": {
+        "currency": {
+          "type": "string",
+          "description": "ISO 4217 fiat code or recognised stablecoin symbol."
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.?[0-9]*$",
+          "description": "Decimal amount as string to preserve precision."
+        },
+        "issuer": {
+          "type": "string",
+          "pattern": "^did:ais1:",
+          "description": "AIS-1 DID of the stablecoin issuer (where applicable)."
+        }
+      }
+    },
+    "purposeCode": {
+      "type": "string",
+      "pattern": "^[A-Z]{4}$",
+      "description": "Four-character ISO 20022 ExternalPurposeCode1Code or ARS-1 supplementary code."
+    },
+    "conditionality": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["conditionId", "predicate", "validity"],
+          "properties": {
+            "conditionId": { "type": "string" },
+            "predicate": {
+              "type": "object",
+              "required": ["type"],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["oracle", "attestation", "time", "balance", "manual", "composite"]
+                }
+              }
+            },
+            "evidenceRequired": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["signature", "attestation", "witness", "log", "hash_anchor", "human"]
+              }
+            },
+            "fallback": {
+              "type": "object",
+              "properties": {
+                "type": { "type": "string" },
+                "after": { "type": "string", "format": "date-time" },
+                "action": {
+                  "type": "string",
+                  "enum": ["return_to_originator", "escrow_extend", "release_to_alternate", "null_and_audit"]
+                }
+              }
+            },
+            "validity": {
+              "type": "object",
+              "required": ["notBefore", "notAfter"],
+              "properties": {
+                "notBefore": { "type": "string", "format": "date-time" },
+                "notAfter": { "type": "string", "format": "date-time" }
+              }
+            },
+            "evaluatorRef": { "type": "string", "pattern": "^did:ais1:" }
+          }
+        },
+        {
+          "type": "string",
+          "format": "uri",
+          "description": "URI to a referenced Class C conditionality block."
+        }
+      ]
+    },
+    "compliance": {
+      "type": "object",
+      "required": ["sanctionsScreening"],
+      "properties": {
+        "travelRule": {
+          "type": "object",
+          "properties": {
+            "envelope": {
+              "type": "string",
+              "enum": ["inline", "selective-disclosure"]
+            },
+            "ref": { "type": "string", "format": "uri" }
+          }
+        },
+        "sanctionsScreening": {
+          "type": "object",
+          "required": ["result", "screenedAt"],
+          "properties": {
+            "result": {
+              "type": "string",
+              "enum": ["clear", "match", "review"]
+            },
+            "listSetRef": { "type": "string", "format": "uri" },
+            "screenedAt": { "type": "string", "format": "date-time" }
+          }
+        },
+        "amlAssessment": {
+          "type": "object",
+          "properties": {
+            "riskRating": {
+              "type": "string",
+              "enum": ["low", "medium", "high"]
+            },
+            "basis": { "type": "string" },
+            "assessedAt": { "type": "string", "format": "date-time" }
+          }
+        },
+        "capitalFlowTags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "beneficialOwnerRef": { "type": "string", "format": "uri" }
+      }
+    },
+    "onwardDelivery": {
+      "type": "object",
+      "required": ["channel"],
+      "properties": {
+        "channel": {
+          "type": "string",
+          "enum": ["bank_credit", "mobile_money", "retail_cash", "in_network_spend", "hold_in_rail"]
+        },
+        "providerRef": { "type": "string", "pattern": "^did:ais1:" },
+        "customerWallet": { "type": "string" },
+        "currency": { "type": "string" },
+        "hardshipPolicyRef": { "type": "string", "format": "uri" }
+      }
+    },
+    "privacyEnvelope": {
+      "type": "object",
+      "description": "Selective-disclosure envelope per §11.2. Reference cryptographic envelopes specified in v0.3."
+    },
+    "valueDate": {
+      "type": "string",
+      "format": "date",
+      "description": "RFC 3339 date on which the amount becomes available to the beneficiary."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC 3339 timestamp of instruction issuance."
+    },
+    "timestampServiceRef": {
+      "type": "string",
+      "description": "URI of the timestamping authority. Reuses AIS-1 §3.4 primitive."
+    },
+    "iso20022Profile": {
+      "type": "string",
+      "description": "ISO 20022 profile in use, e.g. 'pain.001.001.10'."
+    },
+    "aas1RecordRef": {
+      "type": "string",
+      "pattern": "^aas1:",
+      "description": "URI of the AAS-1 Class A action record emitted at issuance."
+    },
+    "signature": {
+      "type": "object",
+      "required": ["alg", "keyRef", "value"],
+      "properties": {
+        "alg": {
+          "type": "string",
+          "description": "Signature algorithm (EdDSA, ES256K, etc.)."
+        },
+        "hashAlg": {
+          "type": "string",
+          "default": "SHA-256"
+        },
+        "canonicalisation": {
+          "type": "string",
+          "default": "JCS"
+        },
+        "keyRef": {
+          "type": "string",
+          "description": "Verification method identifier within the issuer's AIS-1 identity document."
+        },
+        "value": {
+          "type": "string",
+          "description": "Signature value, base64url-encoded."
+        }
+      }
+    },
+    "notes": {
+      "type": "string",
+      "description": "Free-text issuer notes."
+    }
+  }
+}

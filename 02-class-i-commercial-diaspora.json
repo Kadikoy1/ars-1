@@ -1,0 +1,52 @@
+{
+  "ars": "0.2",
+  "messageId": "01HZ9E8JKQ5N6MK3Y9VS4PUCGW",
+  "class": "I",
+  "originatorRef": "did:ais1:sponsor:diaspora-sender-example",
+  "originatorAgentRef": "did:ais1:base:sender-app-agent-001",
+  "beneficiaryRef": "did:ais1:sponsor:family-beneficiary-example",
+  "recipientAgentRef": "did:ais1:base:recipient-agent-ngn-example",
+  "operatorRef": "did:ais1:base:commercial-operator-example",
+  "amount": {
+    "currency": "USDC",
+    "value": "200.00",
+    "issuer": "did:ais1:sponsor:stablecoin-issuer-example"
+  },
+  "purposeCode": "RMSP",
+  "compliance": {
+    "travelRule": {
+      "envelope": "selective-disclosure",
+      "ref": "https://compliance.example.org/envelope/01HZ9E8K..."
+    },
+    "sanctionsScreening": {
+      "result": "clear",
+      "listSetRef": "https://compliance.example.org/lists/un-ofac-uk-2026-05",
+      "screenedAt": "2026-05-16T18:42:11Z"
+    },
+    "amlAssessment": {
+      "riskRating": "low",
+      "basis": "verified-tier-sender; known-recipient-history",
+      "assessedAt": "2026-05-16T18:42:11Z"
+    },
+    "capitalFlowTags": ["UK->NG", "diaspora", "p2p"]
+  },
+  "onwardDelivery": {
+    "channel": "mobile_money",
+    "providerRef": "did:ais1:sponsor:nigerian-mobile-money-example",
+    "customerWallet": "+234-XXX-XXX-XXXX",
+    "currency": "NGN",
+    "hardshipPolicyRef": "https://policies.example.org/hardship/v1"
+  },
+  "valueDate": "2026-05-16",
+  "timestamp": "2026-05-16T18:42:11Z",
+  "iso20022Profile": "pain.001.001.10",
+  "aas1RecordRef": "aas1:01HZ9E8L4K5N6P7Q8R9S0T1U2V",
+  "signature": {
+    "alg": "EdDSA",
+    "hashAlg": "SHA-256",
+    "canonicalisation": "JCS",
+    "keyRef": "did:ais1:base:sender-app-agent-001#key-1",
+    "value": "z9pRsTu7..."
+  },
+  "notes": "Commercial-profile diaspora remittance — UK to Nigeria corridor, sender-pays-personal."
+}

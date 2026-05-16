@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ars-1.org/schemas/v0.2/ars-1-class-c.schema.json",
+  "title": "ARS-1 Class C — Conditionality",
+  "description": "Portable conditionality block. Expresses programmable release rules. May be inline within a Class I or referenced by URI. Normative for ARS-1 v0.2.",
+  "type": "object",
+  "required": ["conditionId", "predicate", "validity"],
+  "properties": {
+    "conditionId": {
+      "type": "string",
+      "pattern": "^[0-9A-Z]{26}$|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "description": "ULID or UUID."
+    },
+    "predicate": {
+      "$ref": "#/$defs/predicate",
+      "description": "The release predicate."
+    },
+    "evidenceRequired": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["signature", "attestation", "witness", "log", "hash_anchor", "human"]
+      },
+      "description": "AAS-1 evidence types required to satisfy the predicate."
+    },
+    "fallback": {
+      "type": "object",
+      "required": ["action"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["expiry", "predicate_unsatisfied", "evaluator_unavailable"]
+        },
+        "after": { "type": "string", "format": "date-time" },
+        "action": {
+          "type": "string",
+          "enum": ["return_to_originator", "escrow_extend", "release_to_alternate", "null_and_audit"]
+        },
+        "alternateRecipientRef": {
+          "type": "string",
+          "format": "uri",
+          "description": "Required if action is 'release_to_alternate'."
+        }
+      },
+      "description": "Action if the predicate is not satisfied within the validity window."
+    },
+    "validity": {
+      "type": "object",
+      "required": ["notBefore", "notAfter"],
+      "properties": {
+        "notBefore": { "type": "string", "format": "date-time" },
+        "notAfter": { "type": "string", "format": "date-time" }
+      }
+    },
+    "evaluatorRef": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^did:ais1:",
+      "description": "Optional AIS-1 DID of the party authorised to evaluate. If absent, the operator's routing agent evaluates."
+    }
+  },
+  "$defs": {
+    "predicate": {
+      "oneOf": [
+        { "$ref": "#/$defs/oraclePredicate" },
+        { "$ref": "#/$defs/attestationPredicate" },
+        { "$ref": "#/$defs/timePredicate" },
+        { "$ref": "#/$defs/balancePredicate" },
+        { "$ref": "#/$defs/manualPredicate" },
+        { "$ref": "#/$defs/compositePredicate" }
+      ]
+    },
+    "oraclePredicate": {
+      "type": "object",
+      "required": ["type", "sourceRef", "field", "operator", "value"],
+      "properties": {
+        "type": { "const": "oracle" },
+        "sourceRef": { "type": "string", "format": "uri", "description": "URI of the oracle source." },
+        "field": { "type": "string", "description": "Field within the oracle's output." },
+        "operator": { "type": "string", "enum": ["eq", "ne", "gt", "gte", "lt", "lte", "in", "nin"] },
+        "value": {},
+        "asOfWindow": { "type": "string", "description": "ISO 8601 duration." }
+      }
+    },
+    "attestationPredicate": {
+      "type": "object",
+      "required": ["type", "attesterRef", "claimType"],
+      "properties": {
+        "type": { "const": "attestation" },
+        "attesterRef": { "type": "string", "format": "uri", "pattern": "^did:ais1:" },
+        "claimType": { "type": "string", "description": "Type of attestation required (e.g. 'vaccination', 'enrolment', 'proof-of-life')." },
+        "claimSchema": { "type": "string", "format": "uri", "description": "Optional schema URI the attestation must conform to." }
+      }
+    },
+    "timePredicate": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "const": "time" },
+        "releaseAt": { "type": "string", "format": "date-time", "description": "Single scheduled release." },
+        "recurring": {
+          "type": "object",
+          "properties": {
+            "cron": { "type": "string", "description": "Cron expression for recurring release." },
+            "endAt": { "type": "string", "format": "date-time" }
+          }
+        }
+      }
+    },
+    "balancePredicate": {
+      "type": "object",
+      "required": ["type", "addressRef", "operator", "threshold"],
+      "properties": {
+        "type": { "const": "balance" },
+        "addressRef": { "type": "string", "description": "Address to check balance on." },
+        "operator": { "type": "string", "enum": ["gt", "gte", "lt", "lte", "eq"] },
+        "threshold": { "type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$" },
+        "currency": { "type": "string" }
+      }
+    },
+    "manualPredicate": {
+      "type": "object",
+      "required": ["type", "authorisedSignerRef"],
+      "properties": {
+        "type": { "const": "manual" },
+        "authorisedSignerRef": { "type": "string", "format": "uri", "pattern": "^did:ais1:" },
+        "instructions": { "type": "string", "description": "Human-readable instructions for the signer." }
+      }
+    },
+    "compositePredicate": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "const": "composite" },
+        "allOf": { "type": "array", "items": { "$ref": "#/$defs/predicate" } },
+        "anyOf": { "type": "array", "items": { "$ref": "#/$defs/predicate" } },
+        "not": { "$ref": "#/$defs/predicate" }
+      }
+    }
+  }
+}
